@@ -1,0 +1,158 @@
+#
+# A ZSH theme based on a combination of the skwp prezto theme and the robl ohmyzsh theme. Based on https://github.com/davidjrice/prezto_powerline
+# Modifiedy by Joey to look more like agnoster
+#  * current time on the right
+#  * Git branch info on the left
+#  * Single line prompt
+#  * Time since last commit on the left
+#
+# Authors:
+#   David Rice <me@davidjrice.co.uk>
+#   Joey Baker <joey@byjoeybaker.com>
+
+ZSH_THEME_REP_TIME_SINCE_COMMIT_SHORT="%{$fg[green]%}"
+ZSH_THEME_REP_TIME_SINCE_COMMIT_MEDIUM="%{$fg[yellow]%}"
+ZSH_THEME_REP_TIME_SINCE_COMMIT_LONG="%{$fg[red]%}"
+ZSH_THEME_REP_TIME_SINCE_COMMIT_NEUTRAL="%{$fg[cyan]%}"
+
+# returns the time since last git commit
+function git_time_details() {
+  # only proceed if there is actually a git repository
+  if `git rev-parse --git-dir > /dev/null 2>&1`; then
+    # only proceed if there is actually a commit
+    if [[ $(git log 2>&1 > /dev/null | grep -c "^fatal: bad default revision") == 0 ]]; then
+      # get the last commit hash
+      # lc_hash=`git log --pretty=format:'%h' -1 2> /dev/null`
+      # get the last commit time
+      lc_time=`git log --pretty=format:'%at' -1 2> /dev/null`
+
+      now=`date +%s`
+      seconds_since_last_commit=$((now-lc_time))
+      lc_time_since=`time_since_commit $seconds_since_last_commit`
+
+      echo "$lc_time_since"
+    else
+      echo ""
+    fi
+  else
+    echo ""
+  fi
+}
+
+# returns the time by given seconds
+function time_since_commit() {
+  seconds_since_last_commit=$(($1 + 0))
+
+  # totals
+  MINUTES=$((seconds_since_last_commit / 60))
+  HOURS=$((seconds_since_last_commit/3600))
+
+  # sub-hours and sub-minutes
+  DAYS=$((seconds_since_last_commit / 86400))
+  SUB_HOURS=$((HOURS % 24))
+  SUB_MINUTES=$((MINUTES % 60))
+
+  if [ "$HOURS" -gt 24 ]; then
+    echo "${DAYS}d${SUB_HOURS}h${SUB_MINUTES}m"
+  elif [ "$MINUTES" -gt 60 ]; then
+    echo "${HOURS}h${SUB_MINUTES}m"
+  else
+    echo "${MINUTES}m"
+  fi
+}
+
+function prompt_jpowerline_precmd {
+  # Check for untracked files or updated submodules since vcs_info doesn't.
+  if [[ ! -z $(git ls-files --other --exclude-standard 2> /dev/null) ]]; then
+    fmt_branch="%K{yellow}$JPOWERLINE_SEPARATOR %k%f%K{yellow}%F{black} %b%F{black}%u%F{black}%c %F{black}◼%f %k%f%F{yellow}"
+  else
+    fmt_branch="%K{green}$JPOWERLINE_SEPARATOR %k%f%F{white}%K{green}  %b%u%c %k%f%F{green}"
+  fi
+  zstyle ':vcs_info:*:prompt:*' formats "${fmt_branch}"
+
+  vcs_info 'prompt'
+}
+
+function prompt_jpowerline_setup {
+  setopt LOCAL_OPTIONS
+  unsetopt XTRACE KSH_ARRAYS
+  prompt_opts=(cr percent subst)
+
+  autoload -Uz add-zsh-hook
+  autoload -Uz vcs_info
+
+  add-zsh-hook precmd prompt_jpowerline_precmd
+
+  # Use extended color pallete if available.
+  if [[ $TERM = *256color* || $TERM = *rxvt* ]]; then
+    __PROMPT_SKWP_COLORS=(
+      "%F{81}"  # turquoise
+      "%F{166}" # orange
+      "%F{135}" # purple
+      "%F{161}" # hotpink
+      "%F{118}" # limegreen
+    )
+  else
+    __PROMPT_SKWP_COLORS=(
+      "%F{cyan}"
+      "%F{yellow}"
+      "%F{magenta}"
+      "%F{red}"
+      "%F{green}"
+    )
+  fi
+
+  # Enable VCS systems you use.
+  # zstyle ':vcs_info:*' enable bzr git hg svn
+  zstyle ':vcs_info:*' enable git
+
+  # check-for-changes can be really slow.
+  # You should disable it if you work with large repositories.
+  zstyle ':vcs_info:*:prompt:*' check-for-changes true
+
+  # Formats:
+  # %b - branchname
+  # %u - unstagedstr (see below)
+  # %c - stagedstr (see below)
+  # %a - action (e.g. rebase-i)
+  # %R - repository path
+  # %S - path in the repository
+  # %n - user
+  # %m - machine hostname
+
+  # local fmt_branch="(${__PROMPT_SKWP_COLORS[1]}%b%f%u%c)"
+  local fmt_branch="${__PROMPT_SKWP_COLORS[2]}%b%f%u%c"
+  local fmt_action="${__PROMPT_SKWP_COLORS[5]}%a%f"
+  local fmt_unstaged="%F{black}✚%f"
+  local fmt_staged="%F{black} ◼%f"
+
+  zstyle ':vcs_info:*:prompt:*' unstagedstr   " ${fmt_unstaged}"
+  zstyle ':vcs_info:*:prompt:*' stagedstr     "${fmt_staged}"
+  zstyle ':vcs_info:*:prompt:*' actionformats "${fmt_branch}${fmt_action}"
+  zstyle ':vcs_info:*:prompt:*' formats       "${fmt_branch}"
+  zstyle ':vcs_info:*:prompt:*' nvcsformats   ""
+
+  # Setup jpowerline style colouring
+  JPOWERLINE_COLOR_BG_GRAY=%K{240}
+  JPOWERLINE_COLOR_BG_LIGHT_GRAY=%K{240}
+  JPOWERLINE_COLOR_BG_WHITE=%K{255}
+
+  JPOWERLINE_COLOR_FG_GRAY=%F{100}
+  JPOWERLINE_COLOR_FG_LIGHT_GRAY=%F{240}
+  JPOWERLINE_COLOR_FG_WHITE=%F{255}
+
+  JPOWERLINE_SEPARATOR=$''
+  JPOWERLINE_R_SEPARATOR=$''
+
+  JPOWERLINE_LEFT_A="%K{blue}%F{black} %~ %k%f%F{blue}"
+  JPOWERLINE_LEFT_B='${vcs_info_msg_0_}'"%K{white}"$JPOWERLINE_SEPARATOR
+  JPOWERLINE_LEFT_C=" %k%f%F{black}%K{white}"'$(git_time_details)'" %k%f%F{white}"$JPOWERLINE_SEPARATOR"%f "
+
+  PROMPT=$JPOWERLINE_LEFT_A$JPOWERLINE_LEFT_B$JPOWERLINE_LEFT_C
+  # RPROMPT="%F{black}"$POWERLINE_R_SEPARATOR"%f%F{white}%*"
+  RPROMPT=""
+}
+
+prompt_jpowerline_setup "$@"
+
+
