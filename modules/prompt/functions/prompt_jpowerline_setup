@@ -145,8 +145,11 @@ function prompt_jpowerline_setup {
   JPOWERLINE_R_SEPARATOR=$''
 
   JPOWERLINE_LEFT_A="%K{blue}%F{black} %~ %k%f%F{blue}"
-  JPOWERLINE_LEFT_B='${vcs_info_msg_0_}'"%K{white}"$JPOWERLINE_SEPARATOR
-  JPOWERLINE_LEFT_C=" %k%f%F{black}%K{white}"'$(git_time_details)'" %k%f%F{white}"$JPOWERLINE_SEPARATOR"%f "
+  JPOWERLINE_LEFT_B='${vcs_info_msg_0_}'$JPOWERLINE_SEPARATOR
+  JPOWERLINE_LEFT_C=" %k%f"
+  # disable the time since last git commit b/c it's really slow
+  # JPOWERLINE_LEFT_B='${vcs_info_msg_0_}'"%K{white}"$JPOWERLINE_SEPARATOR
+  # JPOWERLINE_LEFT_C=" %k%f%F{black}%K{white}"'$(git_time_details)'" %k%f%F{white}"$JPOWERLINE_SEPARATOR"%f "
 
   PROMPT=$JPOWERLINE_LEFT_A$JPOWERLINE_LEFT_B$JPOWERLINE_LEFT_C
   # RPROMPT="%F{black}"$POWERLINE_R_SEPARATOR"%f%F{white}%*"
