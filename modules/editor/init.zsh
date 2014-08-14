@@ -409,7 +409,7 @@ for keymap in 'emacs' 'viins'; do
     bindkey -M "$keymap" "$key" push-line-or-edit
 
   # Bind Shift + Tab to go to the previous menu item.
-  bindkey -M "$keymap" "$key_info[BackTab]" reverse-menu-complete
+  # bindkey -M "$keymap" "$key_info[BackTab]" reverse-menu-complete
 
   # Complete in the middle of word.
   bindkey -M "$keymap" "$key_info[Control]I" expand-or-complete
