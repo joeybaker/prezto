@@ -1,3 +1,6 @@
+# based on the paradox theme. You can read about it here:
+# http://www.paradox.io/posts/9-my-new-zsh-prompt
+
 # Load dependencies.
 pmodload 'helper'
 
@@ -44,7 +47,7 @@ function build_git_prompt {
     else
       bg='yellow'
     fi
-    prompt_segment $bg black '${(e)git_info[prompt]}${git_info[status]}'
+    prompt_segment $bg black '${(e)git_info[prompt]}${(e)git_info[action]}${(e)git_info[status]}'
   fi
 }
 
@@ -131,7 +134,8 @@ function prompt_jparadox_setup {
   zstyle ':prezto:module:git:info:unmerged' format '═'
   zstyle ':prezto:module:git:info:untracked' format '◼'
   zstyle ':prezto:module:git:info:keys' format \
-    'prompt' '%b %s' \
+    'prompt' '%b' \
+    'action' '%s' \
     'status' '%A%B%S%a%d%m%r%U%u%I' \
     'modified' '%m%u%s'
 
