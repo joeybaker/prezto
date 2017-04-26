@@ -118,10 +118,8 @@ zstyle ':prezto:module:editor' dot-expansion 'yes'
 # Auto set to 'off' on dumb terminals.
 zstyle ':prezto:module:prompt' theme 'jpowerline'
 
-# Set the working directory prompt display length.
-# By default, it is set to 'short'. Set it to 'long' (without '~' expansion)
-# for longer or 'full' (with '~' expansion) for even longer prompt display.
-# zstyle ':prezto:module:prompt' pwd-length 'short'
+# Display pwd in long format for themes that use promptpwd function
+# zstyle ':prezto:module:prompt' long-pwd 'yes'
 
 # Set the prompt to display the return code along with an indicator for non-zero
 # return codes. This is not supported by all prompts.
